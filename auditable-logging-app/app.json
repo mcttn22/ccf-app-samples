@@ -2,78 +2,20 @@
   "endpoints": {
     "/log": {
       "get": {
-        "js_module": "endpoints/log.js",
-        "js_function": "getLogItem",
+        "js_module": "endpoints/sta.js",
+        "js_function": "queryPurchase",
         "forwarding_required": "always",
-        "authn_policies": ["user_cert", "member_cert"],
+        "authn_policies": ["user_cert"],
         "mode": "readonly",
-        "openapi": {
-          "responses": {
-            "200": {
-              "description": "Ok",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "msg": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
+        "openapi": {}
       },
       "post": {
-        "js_module": "endpoints/log.js",
-        "js_function": "setLogItem",
+        "js_module": "endpoints/sta.js",
+        "js_function": "recordUser",
         "forwarding_required": "always",
-        "authn_policies": ["member_cert"],
+        "authn_policies": [],
         "mode": "readwrite",
-        "openapi": {
-          "responses": {
-            "204": {
-              "description": "Ok"
-            }
-          },
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/{user_id}/permission": {
-      "put": {
-        "js_module": "endpoints/log.js",
-        "js_function": "setUserPermission",
-        "forwarding_required": "always",
-        "authn_policies": ["member_cert"],
-        "mode": "readwrite",
-        "openapi": {
-          "responses": {
-            "204": {
-              "description": "Ok"
-            }
-          }
-        }
+        "openapi": {}
       }
     }
   }

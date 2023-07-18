@@ -118,22 +118,24 @@ function checkUserAccess(
   return !outOfPermittedLogIdRange;
 }
 
-interface LogItem {
-  msg: string;
+interface Purchase {
+  objectID : number;
+  timeStamp : string;
 }
 
-interface LogEntry extends LogItem {
-  id: number;
+class PurchaseImpl implements Purchase  {
+  objectID: number;
+  timeStamp: string;
 }
 
-const logMap = ccfapp.typedKv("log", ccfapp.uint32, ccfapp.json<LogItem>());
+const purchaseMap = ccfapp.typedKv("purchase", ccfapp.string, ccfapp.json<Purchase>());
 
-export function getLogItem(
+export function queryPurchase(  
   request: ccfapp.Request
-): ccfapp.Response<LogItem | string> {
+): ccfapp.Response<Purchase | string> {
   const parsedQuery = parseRequestQuery(request);
 
-  const logId = parseInt(parsedQuery.log_id);
+  const logId = parsedQuery.log_id;
   if (Number.isNaN(logId)) {
     return {
       statusCode: 400,
@@ -152,14 +154,14 @@ export function getLogItem(
       statusCode: 403,
     };
   }
-  if (!logMap.has(logId)) {
+  if (!purchaseMap.has(logId)) {
     return {
       statusCode: 404,
     };
   }
   if (!seqNo) {
     return {
-      body: logMap.get(logId),
+      body: purchaseMap.get(logId),
     };
   } else {
     const rangeBegin = seqNo;
@@ -197,21 +199,23 @@ export function getLogItem(
     const logMapHistorical = ccfapp.typedKv(
       firstKv["log"],
       ccfapp.uint32,
-      ccfapp.json<LogItem>()
+      ccfapp.json<Purchase>()
     );
-    return {
+    return {  
       body: logMapHistorical.get(logId),
     };
   }
 }
 
-export function setLogItem(request: ccfapp.Request<LogItem>): ccfapp.Response {
-  const parsedQuery = parseRequestQuery(request);
-  const logId = parseInt(parsedQuery.log_id);
-  logMap.set(logId, request.body.json());
+export function recordUser(request: ccfapp.Request<Purchase>): ccfapp.Response {
+  const input = request.body.json();
+  let purchase = new PurchaseImpl();
+  purchase.objectID = input["objectID"];
+  purchase.timeStamp = input["timeStamp"];
+  purchaseMap.set(input["email"], purchase);
   return {
     statusCode: 204,
-  };
+};
 }
 
 function validatePermission(permission: any): boolean {
